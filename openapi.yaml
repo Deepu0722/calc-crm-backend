@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: calc-crm-backend API
+  version: 1.0.0
+  description: A minimal calculator API, backed by Postgres.
+
+servers:
+  - url: http://localhost:4000
+    description: Local development
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /calculate:
+    post:
+      summary: Perform a calculation and persist it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+      responses:
+        "200":
+          description: Calculation result, saved to the database
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calculation"
+        "400":
+          description: Invalid operation or missing fields
+
+  /history:
+    get:
+      summary: List recent calculations
+      responses:
+        "200":
+          description: An array of past calculations, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Calculation"
+
+components:
+  schemas:
+    CalculateRequest:
+      type: object
+      required: [a, b, operation]
+      properties:
+        a:
+          type: number
+          example: 4
+        b:
+          type: number
+          example: 5
+        operation:
+          type: string
+          enum: [add, subtract, multiply]
+          example: add
+
+    Calculation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        a:
+          type: number
+        b:
+          type: number
+        operation:
+          type: string
+        result:
+          type: number
+        created_at:
+          type: string
+          format: date-time
